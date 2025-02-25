@@ -61,6 +61,13 @@ window.addEventListener('mousemove', (event) => {
   mouse.y = event.clientY / window.innerHeight
 })
 
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+}
+)
+
 
 let clock = new THREE.Clock();
 
