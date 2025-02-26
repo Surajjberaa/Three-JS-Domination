@@ -46,6 +46,7 @@ const renderer = new THREE.WebGLRenderer({ canvas });
 document.body.appendChild( renderer.domElement );
 
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const controls = new OrbitControls( camera, renderer.domElement );
 
@@ -76,7 +77,7 @@ function animate() {
 
     
 
-    console.log(mouse.x, mouse.y);
+    // console.log(mouse.x, mouse.y);
     
     
     model.lookAt(new THREE.Vector3(mouse.x - 0.5, -mouse.y + 0.5, 0.5))
