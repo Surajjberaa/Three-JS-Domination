@@ -10,8 +10,19 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 camera.position.set(0, 1, 15);
 
 const cubegeo = new THREE.BoxGeometry(4, 4, 8, 10, 10, 30);
-const cubemat = new THREE.MeshPhysicalMaterial({ color: "red", wireframe: true });
+const cubemat = new THREE.MeshPhysicalMaterial({ color: "red" });
 const cube = new THREE.Mesh(cubegeo, cubemat);
+cube.position.set(-5, 0, 0); // Position cube to the left
+
+const sphereGeo = new THREE.SphereGeometry(2, 32, 32);
+const sphereMat = new THREE.MeshPhysicalMaterial({ color: "purple" });
+const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+sphere.position.set(5, 0, 0); // Position sphere to the right
+
+scene.add(sphere);
+scene.add(cube); // Add cube to scene
+
+
 
 const loader = new GLTFLoader();
 
@@ -22,7 +33,7 @@ loader.load('/pp-19-01_vityaz.glb', function (gltf) {
   model = gltf.scene;
   model.scale.set(0.1, 0.1, 0.1); // Increase the size
   model.position.set(0, 0, 0); // Move it to the center
-  scene.add(model);
+  // scene.add(model);
 
 }, undefined, function (error) {
 
@@ -30,8 +41,8 @@ loader.load('/pp-19-01_vityaz.glb', function (gltf) {
 
 });
 
-// const light3 = new THREE.AmbientLight(0xffffff, 1);
-// scene.add(light3);
+const light3 = new THREE.AmbientLight(0xffffff, 1);
+scene.add(light3);
 
 // const light4 = new THREE.PointLight(0xffffff, 100);
 // light4.position.set(2, 2, 10);
@@ -44,8 +55,8 @@ const light = new THREE.DirectionalLight({ color: 0xffffff, intensity: 10 });
 light.position.set(2, 4, 5);
 scene.add(light);
 
-const lightHelper = new THREE.DirectionalLightHelper(light, 3);
-scene.add(lightHelper);
+// const lightHelper = new THREE.DirectionalLightHelper(light, 3);
+// scene.add(lightHelper);
 
 // const light2 = new THREE.DirectionalLight();
 // light2.position.set(-2, 2, 5);
@@ -60,7 +71,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-// scene.add(cube);
+scene.add(cube);
 
 const mouse = {
   x: 0,
@@ -119,6 +130,52 @@ gui.add(cubeControls, 'rotationZ', 0, Math.PI * 2).name('Rotation Z').onChange(v
 gui.addColor(cubeControls, 'color').name('Color').onChange(value => {
   cube.material.color.set(value);
 });
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+window.addEventListener('pointermove', (event) => {
+  // Calculate pointer position in normalized device coordinates
+  // (-1 to +1) for both components
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+});
+
+// Store original colors when objects are first hovered
+let hoveredObject = null;
+let originalColor = null;
+
+function onPointerMove(event) {
+  // Update the picking ray with the camera and pointer position
+  raycaster.setFromCamera(pointer, camera);
+
+  // Calculate objects intersecting the picking ray
+  const intersects = raycaster.intersectObjects([cube, sphere]);
+
+  // Restore original colors for all previously hovered objects
+  if (hoveredObject) {
+    hoveredObject.forEach((obj, i) => {
+      obj.material.color.set(originalColor[i]);
+    });
+    hoveredObject = null;
+    originalColor = null;
+  }
+
+  // If we're now hovering over objects
+  if (intersects.length > 0) {
+    // Store all intersected objects and their colors
+    hoveredObject = intersects.map(intersect => intersect.object);
+    originalColor = hoveredObject.map(obj => obj.material.color.getHex());
+    
+    // Change all intersected objects to green
+    hoveredObject.forEach(obj => {
+      obj.material.color.set('#00ff00');
+    });
+  }
+}
+
+window.addEventListener('pointermove', onPointerMove);
+
+
 
 function animate() {
   window.requestAnimationFrame(animate);
