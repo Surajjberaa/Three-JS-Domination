@@ -10,7 +10,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 camera.position.set(0, 1, 15);
 
 const cubegeo = new THREE.BoxGeometry(4, 4, 8, 10, 10, 30);
-const cubemat = new THREE.MeshBasicMaterial({ color: "red", wireframe: true });
+const cubemat = new THREE.MeshPhysicalMaterial({ color: "red", wireframe: true });
 const cube = new THREE.Mesh(cubegeo, cubemat);
 
 const loader = new GLTFLoader();
@@ -22,7 +22,7 @@ loader.load('/pp-19-01_vityaz.glb', function (gltf) {
   model = gltf.scene;
   model.scale.set(0.1, 0.1, 0.1); // Increase the size
   model.position.set(0, 0, 0); // Move it to the center
-  // scene.add(model);
+  scene.add(model);
 
 }, undefined, function (error) {
 
@@ -30,13 +30,26 @@ loader.load('/pp-19-01_vityaz.glb', function (gltf) {
 
 });
 
-const light = new THREE.DirectionalLight(0xffffff, 5);
-light.position.set(2, 2, 5);
+// const light3 = new THREE.AmbientLight(0xffffff, 1);
+// scene.add(light3);
+
+// const light4 = new THREE.PointLight(0xffffff, 100);
+// light4.position.set(2, 2, 10);
+// scene.add(light4);
+
+// const pointlighthelper = new THREE.PointLightHelper(light4);
+// scene.add(pointlighthelper);
+
+const light = new THREE.DirectionalLight({ color: 0xffffff, intensity: 10 });
+light.position.set(2, 4, 5);
 scene.add(light);
 
-const light2 = new THREE.DirectionalLight(0xffffff, 5);
+const lightHelper = new THREE.DirectionalLightHelper(light, 3);
+scene.add(lightHelper);
+
+// const light2 = new THREE.DirectionalLight();
 // light2.position.set(-2, 2, 5);
-scene.add(light2);
+// scene.add(light2);
 
 const canvas = document.querySelector('canvas');
 const renderer = new THREE.WebGLRenderer({ canvas });
@@ -47,7 +60,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-scene.add(cube);
+// scene.add(cube);
 
 const mouse = {
   x: 0,
