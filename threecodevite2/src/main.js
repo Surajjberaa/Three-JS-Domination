@@ -1,60 +1,57 @@
 import * as THREE from 'three';
-import {OrbitControls} from 'three/addons/controls/OrbitControls.js'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import {RGBELoader} from "three/addons/loaders/RGBELoader.js"
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import GUI from 'lil-gui';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
 
-camera.position.set(0, 1, 15); 
+camera.position.set(0, 1, 15);
 
-
-const cubegeo = new THREE.BoxGeometry(1, 1, 4, 10, 10, 30);
-const cubemat = new THREE.MeshBasicMaterial({color: "red", wireframe: true});
+const cubegeo = new THREE.BoxGeometry(4, 4, 8, 10, 10, 30);
+const cubemat = new THREE.MeshBasicMaterial({ color: "red", wireframe: true });
 const cube = new THREE.Mesh(cubegeo, cubemat);
 
 const loader = new GLTFLoader();
 
 let model;
 
-loader.load( '/pp-19-01_vityaz.glb', function ( gltf ) {
+loader.load('/pp-19-01_vityaz.glb', function (gltf) {
 
-	  model = gltf.scene;
-    model.scale.set(0.1, 0.1, 0.1); // Increase the size
-    model.position.set(0, 0, 0); // Move it to the center
-    scene.add(model);
+  model = gltf.scene;
+  model.scale.set(0.1, 0.1, 0.1); // Increase the size
+  model.position.set(0, 0, 0); // Move it to the center
+  // scene.add(model);
 
-}, undefined, function ( error ) {
+}, undefined, function (error) {
 
-	console.error( error );
+  console.error(error);
 
-} );
+});
 
 const light = new THREE.DirectionalLight(0xffffff, 5);
 light.position.set(2, 2, 5);
 scene.add(light);
 
-
 const light2 = new THREE.DirectionalLight(0xffffff, 5);
 // light2.position.set(-2, 2, 5);
 scene.add(light2);
 
-
-
 const canvas = document.querySelector('canvas');
 const renderer = new THREE.WebGLRenderer({ canvas });
-document.body.appendChild( renderer.domElement );
+document.body.appendChild(renderer.domElement);
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-const controls = new OrbitControls( camera, renderer.domElement );
+const controls = new OrbitControls(camera, renderer.domElement);
 
-// scene.add(cube);
+scene.add(cube);
 
 const mouse = {
-  x : 0,
-  y : 0
+  x: 0,
+  y: 0
 }
 
 window.addEventListener('mousemove', (event) => {
@@ -69,24 +66,59 @@ window.addEventListener('resize', () => {
 }
 )
 
-
 let clock = new THREE.Clock();
 
+const gui = new GUI();
+const cubeControls = {
+  width: 4,
+  height: 4,
+  depth: 8,
+  rotationX: 0,
+  rotationY: 0,
+  rotationZ: 0,
+  color: '#ff0000'
+};
+
+gui.add(cubeControls, 'width', 0.1, 10).name('Width').onChange(value => {
+  cube.scale.x = value / 4;
+});
+
+gui.add(cubeControls, 'height', 0.1, 10).name('Height').onChange(value => {
+  cube.scale.y = value / 4;
+});
+
+gui.add(cubeControls, 'depth', 0.1, 10).name('Depth').onChange(value => {
+  cube.scale.z = value / 8;
+});
+
+gui.add(cubeControls, 'rotationX', 0, Math.PI * 2).name('Rotation X').onChange(value => {
+  cube.rotation.x = value;
+});
+
+gui.add(cubeControls, 'rotationY', 0, Math.PI * 2).name('Rotation Y').onChange(value => {
+  cube.rotation.y = value;
+});
+
+gui.add(cubeControls, 'rotationZ', 0, Math.PI * 2).name('Rotation Z').onChange(value => {
+  cube.rotation.z = value;
+});
+
+gui.addColor(cubeControls, 'color').name('Color').onChange(value => {
+  cube.material.color.set(value);
+});
+
 function animate() {
-    window.requestAnimationFrame(animate);
+  window.requestAnimationFrame(animate);
 
-    
+  // console.log(mouse.x, mouse.y);
 
-    // console.log(mouse.x, mouse.y);
-    
-    
-    model.lookAt(new THREE.Vector3(mouse.x - 0.5, -mouse.y + 0.5, 0.5))
-    controls.update();
 
-    // model.rotation.y = clock.getElapsedTime() / 2;
+  model.lookAt(new THREE.Vector3(mouse.x - 0.5, -mouse.y + 0.5, 0.5))
+  controls.update();
 
-    renderer.render(scene, camera);
+  // model.rotation.y = clock.getElapsedTime() / 2;
+
+  renderer.render(scene, camera);
 }
 
 animate();
-
