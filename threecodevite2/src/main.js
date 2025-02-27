@@ -91,7 +91,6 @@ window.addEventListener('resize', () => {
 )
 
 let clock = new THREE.Clock();
-
 const gui = new GUI();
 const cubeControls = {
   width: 4,
@@ -103,33 +102,81 @@ const cubeControls = {
   color: '#ff0000'
 };
 
-gui.add(cubeControls, 'width', 0.1, 10).name('Width').onChange(value => {
+const cubeFolder = gui.addFolder('Cube Controls');
+
+cubeFolder.add(cubeControls, 'width', 0.1, 10).name('Width').onChange(value => {
   cube.scale.x = value / 4;
 });
 
-gui.add(cubeControls, 'height', 0.1, 10).name('Height').onChange(value => {
+cubeFolder.add(cubeControls, 'height', 0.1, 10).name('Height').onChange(value => {
   cube.scale.y = value / 4;
 });
 
-gui.add(cubeControls, 'depth', 0.1, 10).name('Depth').onChange(value => {
+cubeFolder.add(cubeControls, 'depth', 0.1, 10).name('Depth').onChange(value => {
   cube.scale.z = value / 8;
 });
 
-gui.add(cubeControls, 'rotationX', 0, Math.PI * 2).name('Rotation X').onChange(value => {
+cubeFolder.add(cubeControls, 'rotationX', 0, Math.PI * 2).name('Rotation X').onChange(value => {
   cube.rotation.x = value;
 });
 
-gui.add(cubeControls, 'rotationY', 0, Math.PI * 2).name('Rotation Y').onChange(value => {
+cubeFolder.add(cubeControls, 'rotationY', 0, Math.PI * 2).name('Rotation Y').onChange(value => {
   cube.rotation.y = value;
 });
 
-gui.add(cubeControls, 'rotationZ', 0, Math.PI * 2).name('Rotation Z').onChange(value => {
+cubeFolder.add(cubeControls, 'rotationZ', 0, Math.PI * 2).name('Rotation Z').onChange(value => {
   cube.rotation.z = value;
 });
 
-gui.addColor(cubeControls, 'color').name('Color').onChange(value => {
+cubeFolder.addColor(cubeControls, 'color').name('Color').onChange(value => {
   cube.material.color.set(value);
 });
+
+const sphereControls = {
+  radius: 2,
+  widthSegments: 32,
+  heightSegments: 32,
+  rotationX: 0,
+  rotationY: 0,
+  rotationZ: 0,
+  color: '#0000ff'
+};
+
+const sphereFolder = gui.addFolder('Sphere Controls');
+
+sphereFolder.add(sphereControls, 'radius', 0.1, 10).name('Radius').onChange(value => {
+  sphere.scale.set(value/2, value/2, value/2);
+});
+
+sphereFolder.add(sphereControls, 'widthSegments', 3, 64, 1).name('Width Segments').onChange(value => {
+  const geometry = new THREE.SphereGeometry(1, value, sphere.geometry.parameters.heightSegments);
+  sphere.geometry.dispose();
+  sphere.geometry = geometry;
+});
+
+sphereFolder.add(sphereControls, 'heightSegments', 2, 64, 1).name('Height Segments').onChange(value => {
+  const geometry = new THREE.SphereGeometry(1, sphere.geometry.parameters.widthSegments, value);
+  sphere.geometry.dispose();
+  sphere.geometry = geometry;
+});
+
+sphereFolder.add(sphereControls, 'rotationX', 0, Math.PI * 2).name('Rotation X').onChange(value => {
+  sphere.rotation.x = value;
+});
+
+sphereFolder.add(sphereControls, 'rotationY', 0, Math.PI * 2).name('Rotation Y').onChange(value => {
+  sphere.rotation.y = value;
+});
+
+sphereFolder.add(sphereControls, 'rotationZ', 0, Math.PI * 2).name('Rotation Z').onChange(value => {
+  sphere.rotation.z = value;
+});
+
+sphereFolder.addColor(sphereControls, 'color').name('Color').onChange(value => {
+  sphere.material.color.set(value);
+});
+
+
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
@@ -165,7 +212,7 @@ function onPointerMove(event) {
     // Store all intersected objects and their colors
     hoveredObject = intersects.map(intersect => intersect.object);
     originalColor = hoveredObject.map(obj => obj.material.color.getHex());
-    
+
     // Change all intersected objects to green
     hoveredObject.forEach(obj => {
       obj.material.color.set('#00ff00');
