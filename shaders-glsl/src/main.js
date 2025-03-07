@@ -17,7 +17,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 
 // Add a cube to the scene
-const geometry = new THREE.PlaneGeometry(2, 3, 100, 100);
+const geometry = new THREE.PlaneGeometry(3, 2, 200, 200);
 const material = new THREE.ShaderMaterial({
     vertexShader: vertex,
     fragmentShader: fragment,
